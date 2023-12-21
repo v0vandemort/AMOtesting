@@ -35,10 +35,6 @@ try {
         "filter[price]" => 4999
     ]);
 
-//    echo '<pre>';
-//    print_r($leads);
-//    echo '</pre>';
-
     $checkLeads = $amoV4Client->GETRequestApi("leads", [
         "filter[statuses][0][pipeline_id]" => 7597210,
         "filter[statuses][0][status_id]" => 62884274,
@@ -70,17 +66,8 @@ try {
                 unset($checkLead['status_id']);
                 unset($checkLead['closest_task_at']);
 
-//                echo "Текущая сделка<pre>";
-//                print_r($lead);
-//                echo "</pre>";
-//
-//                echo "Копированная сделка<pre>";
-//                print_r($checkLead);
-//                echo "</pre>";
-
                 if ($lead == $checkLead) {
                     $copyExists = true;
-//                    echo 'Одинкаоыве ';
                     break;
 
                 }
@@ -90,108 +77,28 @@ try {
         //Если копии текущей сделки нет, то создаем
         if (!$copyExists) {
 
-
-//
-//                echo '<pre>';
-//                print_r($tasks);
-//                echo '</pre>';
-
-
             //Чистим данные для дублирования
-//            $newLead = [$lead];
             unset($newLead[$key]['id']);
             unset($newLead[$key]['_links']);
             unset($newLead[$key]['_embedded']);
             $newLead[0]['status_id'] = 62884274;//Перенос статуса копии сделки
 
-//
-//            echo '<pre> LEADNEW TESt1 Delete';
-//            print_r($newLead);
-//            echo '</pre>';
             //чистка пустых элементов элементов в сделке
             foreach ($newLead[0] as $subKey => $subValue) {
                 if (empty($newLead[0][$subKey])) {
-//                    echo 'unset';
-//                    echo '<pre> unsetting';
-//                    print_r($newLead[$key][$subKey]);
-//                    echo '</pre>';
                     unset($newLead[0][$subKey]);
                 }
             }
-//            echo '<pre> LEADNEW TESt2 Delete';
-//            print_r($newLead);
-//            echo '</pre>';
-//
-//
-//            echo '<pre> LEADNEW';
-//            print_r($newLead);
-//            echo '</pre>';
-
 
             //вносим очищенные данные
             $copiedLead = $amoV4Client->POSTRequestApi("leads", $newLead, "POST");
-//
-//            echo '<pre> LEADNEW COPY';
-//            print_r($copiedLead);
-//            echo '</pre>';
 
-            // работа с задачами
-            //достаем задачи для копирования
 
             $tasks = $amoV4Client->GETRequestApi("tasks", [
                 "filter[entity_id]" => $leadId
             ]);
 
-//            echo '<pre> tasks';
-//            print_r($tasks);
-//            echo '</pre>';
-
-//            $checkTasks = $amoV4Client->GETRequestApi("tasks", [
-//                "filter[entity_id]" => $copiedLead['_embedded']['leads'][0]['id']
-//            ]);
-
-//
-//            echo '<pre> checkTasks';
-//            print_r($checkTasks);
-//            echo '</pre>';
-//
-//            if(){
-//
-//            }
-
-
-
-
             foreach ($tasks['_embedded']['tasks'] as $key => &$task) {
-                //Проверка наличия копии текущей задачи
-//                foreach ($checkTasks['_embedded']['tasks'] as $checkKey => &$checkLead) {
-//
-//                    unset($checkTasks['id']);
-//                    unset($checkTasks['_links']);
-//                    unset($checkTasks['status_id']);
-//                    unset($checkTasks['closest_task_at']);
-//
-//                    echo "Текущая сделка<pre>";
-//                    print_r($lead);
-//                    echo "</pre>";
-//
-//                    echo "Копированная сделка<pre>";
-//                    print_r($checkLead);
-//                    echo "</pre>";
-//
-//                    if ($lead == $checkLead) {
-//                        $copyExists = true;
-//                        echo 'Одинкаоыве ';
-//                        break;
-//
-//                    }
-//                }
-
-
-
-
-
-
                 $newTask = $task;
                 unset($newTask['id']);
                 unset($newTask['_links']);
@@ -199,59 +106,12 @@ try {
                 $taskToCopy=[$newTask];
                 $copiedTask = $amoV4Client->POSTRequestApi("tasks", $taskToCopy, "POST");
 
-//                echo '<pre>NEWTASK';
-//                print_r($newTask);
-//                echo '</pre>';
-//                echo '<pre>copiedTASK';
-//                print_r($copiedTask);
-//                echo '</pre>';
-
             }
         } else {
-//            echo 'Копия уже есть ';
             continue;
         }
         unset($copyExists);
-//        else {
-//            //достаем задачи для копирования
-//
-//            $tasks = $amoV4Client->GETRequestApi("tasks", [
-//                "filter[entity_id]" => $leadId
-//            ]);
-//
-////
-////                echo '<pre>';
-////                print_r($tasks);
-////                echo '</pre>';
-//
-//
-//            //Чистим данные для дублирования
-//            $newLead = [$lead];
-//            unset($newLead[$key]['id']);
-//            unset($newLead[$key]['_links']);
-//            unset($newLead[$key]['_embedded']);
-//            $newLead[$key]['status_id'] = 62884274;
-//
-//            foreach ($newLead[$key] as $subKey => $subValue) {
-//                if (empty($newLead[$key][$subKey])) {
-//                    unset($newLead[$key][$subKey]);
-//                }
-//            }
-//
-//
-//            echo '<pre> LEADNEW';
-//            print_r($newLead);
-//            echo '</pre>';
-//
-//
-//            //вносим очищенные данные
-//            $copiedLead = $amoV4Client->POSTRequestApi("leads", $newLead, "POST");
-//
-//            echo '<pre> LEADNEW COPY';
-//            print_r($copiedLead);
-//            echo '</pre>';
-//
-//        }
+
 
     }
 } catch (Exception $ex) {
